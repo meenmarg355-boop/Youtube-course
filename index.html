@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="hi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creator Academy - Interactive Pro Masterclass</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 6 Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #030509; color: #f1f5f9; }
+        .heading-font { font-family: 'Space Grotesk', sans-serif; }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #FF3366 0%, #FF9933 50%, #FFCC00 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Glassmorphism */
+        .glass-card {
+            background: rgba(11, 16, 29, 0.75);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transform-style: preserve-3d;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Moving Marquee Animations */
+        @keyframes marqueeLeft {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+        }
+        @keyframes marqueeRight {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0%); }
+        }
+        .animate-marquee-left {
+            display: flex;
+            width: 200%;
+            animation: marqueeLeft 22s linear infinite;
+        }
+        .animate-marquee-right {
+            display: flex;
+            width: 200%;
+            animation: marqueeRight 25s linear infinite;
+        }
+        .animate-marquee-left:hover, .animate-marquee-right:hover {
+            animation-play-state: paused;
+        }
+
+        /* Continuous Floating Physics */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(2deg); }
+        }
+        @keyframes floatReverse {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(10px) rotate(-2deg); }
+        }
+        .animate-float-1 { animation: floatSlow 5s ease-in-out infinite; }
+        .animate-float-2 { animation: floatReverse 6s ease-in-out infinite; }
+
+        /* Glowing Border Beam */
+        @keyframes borderBeam {
+            0% { border-color: rgba(255, 51, 102, 0.8); box-shadow: 0 0 25px rgba(255, 51, 102, 0.4); }
+            50% { border-color: rgba(255, 153, 51, 0.8); box-shadow: 0 0 35px rgba(255, 153, 51, 0.4); }
+            100% { border-color: rgba(255, 51, 102, 0.8); box-shadow: 0 0 25px rgba(255, 51, 102, 0.4); }
+        }
+        .laser-card {
+            animation: borderBeam 4s infinite linear;
+        }
+
+        /* Gold VIP Mode */
+        .premium-border-gold {
+            border: 2px solid #f59e0b !important;
+            box-shadow: 0 0 40px rgba(245, 158, 11, 0.35);
+        }
+
+        .nav-link.active {
+            color: #ff3366;
+            border-bottom: 2px solid #ff3366;
+        }
+        .page-content { display: none; }
+        .page-content.active { display: block; animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(14px) scale(0.99); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+    </style>
+</head>
+<body class="selection:bg-rose-500 selection:text-white overflow-x-hidden min-h-screen flex flex-col justify-between relative">
+
+    <!-- Interactive Canvas Particle Field (Moveable Background) -->
+    <canvas id="particleCanvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+    <!-- Interactive Mouse Follower Glow (Cursor Spotlight) -->
+    <div id="cursorSpotlight" class="pointer-events-none fixed -translate-x-1/2 -translate-y-1/2 w-[480px] h-[480px] bg-rose-600/12 rounded-full blur-[110px] z-10 transition-transform duration-75"></div>
+
+    <!-- Top Urgency Banner -->
+    <div id="topBanner" class="bg-gradient-to-r from-rose-950 via-rose-700 to-amber-700 text-white text-xs sm:text-sm font-semibold py-2 px-4 text-center sticky top-0 z-50 shadow-lg flex items-center justify-center gap-2">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+        <span id="bannerText">⚡ LIMITED TIME 80% EARLY ACCESS DISCOUNT ENDS IN:</span>
+        <span id="countdownTimer" class="bg-black/60 px-2.5 py-0.5 rounded font-mono text-amber-300 font-bold tracking-wider">14:59</span>
+    </div>
+
+    <!-- Floating Navigation Bar -->
+    <header class="w-full px-4 pt-3 sticky top-10 z-40">
+        <div class="max-w-6xl mx-auto glass-card rounded-2xl px-5 sm:px-7 h-18 flex items-center justify-between shadow-2xl transition-all" id="mainNavbar">
+            <button onclick="navigateTo('home')" class="flex items-center space-x-3 text-left group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-600 via-rose-500 to-amber-500 flex items-center justify-center text-white shadow-lg shadow-rose-600/30 group-hover:rotate-6 transition-transform">
+                    <i class="fab fa-youtube text-xl"></i>
+                </div>
+                <div>
+                    <span class="heading-font font-bold text-lg tracking-tight text-white block leading-tight">CREATOR OS</span>
+                    <span id="membershipBadge" class="text-[10px] text-rose-400 font-semibold tracking-wider uppercase block">Free Visitor</span>
+                </div>
+            </button>
+
+            <!-- Navigation Links -->
+            <nav class="hidden lg:flex items-center space-x-6 text-xs sm:text-sm font-medium text-slate-300">
+                <button onclick="navigateTo('home')" class="nav-link active py-2 transition hover:text-white" id="link-home">Introduction</button>
+                <button onclick="navigateTo('syllabus')" class="nav-link py-2 transition hover:text-white" id="link-syllabus">Syllabus</button>
+                <button onclick="navigateTo('bonuses')" class="nav-link py-2 transition hover:text-white" id="link-bonuses">Bonuses</button>
+                <button onclick="navigateTo('instructor')" class="nav-link py-2 transition hover:text-white" id="link-instructor">Instructor</button>
+                <button onclick="navigateTo('reviews')" class="nav-link py-2 transition hover:text-white" id="link-reviews">Reviews</button>
+                <button onclick="navigateTo('faq')" class="nav-link py-2 transition hover:text-white" id="link-faq">FAQ</button>
+                <button onclick="navigateTo('contact')" class="nav-link py-2 transition hover:text-white" id="link-contact">Contact</button>
+                <!-- Secret Vault Button (Only visible after payment) -->
+                <button onclick="navigateTo('vault')" class="hidden nav-link py-1 px-3 rounded-lg bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40 hover:bg-amber-500 hover:text-black transition" id="link-vault">
+                    👑 Student Vault
+                </button>
+            </nav>
+
+            <button onclick="scrollToPricing()" class="bg-gradient-to-r from-rose-500 via-rose-600 to-amber-500 hover:scale-105 active:scale-95 text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-rose-600/30 flex items-center gap-2">
+                <i class="fas fa-bolt text-xs text-amber-300"></i>
+                <span id="navbarBtnText">Enroll Now</span>
+            </button>
+        </div>
+
+        <!-- Mobile Scroll Nav -->
+        <div class="lg:hidden flex overflow-x-auto gap-2 py-2 text-xs font-semibold scrollbar-none max-w-6xl mx-auto">
+            <button onclick="navigateTo('home')" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 shrink-0">Intro</button>
+            <button onclick="navigateTo('syllabus')" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 shrink-0">Syllabus</button>
+            <button onclick="navigateTo('bonuses')" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 shrink-0">Bonuses</button>
+            <button onclick="navigateTo('instructor')" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 shrink-0">Instructor</button>
+            <button onclick="navigateTo('reviews')" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 shrink-0">Reviews</button>
+            <button onclick="navigateTo('faq')" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 shrink-0">FAQ</button>
+            <button onclick="navigateTo('contact')" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 shrink-0">Contact</button>
+            <button onclick="navigateTo('vault')" class="hidden px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0 font-bold" id="mobileLinkVault">👑 Vault</button>
+        </div>
+    </header>
+
+    <!-- ================= DYNAMIC MOVING TICKER 1 (LEFT TO RIGHT) ================= -->
+    <div class="w-full overflow-hidden py-3 bg-slate-950/80 border-y border-white/5 relative z-20 mt-6">
+        <div class="animate-marquee-left space-x-8 text-xs font-bold uppercase tracking-widest text-slate-400">
+            <span>🔥 100K+ YouTube Subscribers</span>
+            <span>🎬 4K Cinematic Video Editing</span>
+            <span>💰 $1,500+ Client Outreach System</span>
+            <span>⚡ 10/10 Video Retention Secrets</span>
+            <span>🏆 4,500+ Active Students</span>
+            <span>💎 Lifetime Mastermind Access</span>
+            <!-- Repeat for infinite illusion -->
+            <span>🔥 100K+ YouTube Subscribers</span>
+            <span>🎬 4K Cinematic Video Editing</span>
+            <span>💰 $1,500+ Client Outreach System</span>
+            <span>⚡ 10/10 Video Retention Secrets</span>
+            <span>🏆 4,500+ Active Students</span>
+            <span>💎 Lifetime Mastermind Access</span>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <main class="max-w-6xl mx-auto px-4 w-full flex-grow pt-8 pb-20 relative z-20">
+
+        <!-- ================= PAGE 1: HOME (INTRODUCTION) ================= -->
+        <section id="page-home" class="page-content active">
+            <!-- Hero Introduction -->
+            <div class="text-center max-w-4xl mx-auto pt-6 pb-12 relative">
+                <div class="inline-flex items-center gap-2 bg-slate-900/90 border border-rose-500/30 px-4 py-2 rounded-full text-xs font-semibold text-rose-300 mb-6 shadow-xl">
+                    <span class="flex h-2 w-2 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                    </span>
+                    The 2026 YouTube & Creator Monetization Blueprint
+                </div>
+
+                <h1 class="heading-font text-4xl sm:text-6xl md:text-7xl font-extrabold leading-[1.12] mb-6 text-white tracking-tight">
+                    Creator Bano, Consumer Nahi. Seekho <span class="gradient-text">Complete Mastery</span>!
+                </h1>
+
+                <p class="text-slate-400 text-base sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+                    Ye koi basic tutorial nahi hai. Ye wo practical system hai jisse YouTube par views, high retention aur real international freelance clients aate hain.
+                </p>
+
+                <!-- Video Frame with Live Floating Animated Badges -->
+                <div class="relative max-w-3xl mx-auto mb-14 rounded-3xl p-2.5 bg-gradient-to-b from-white/15 to-transparent shadow-2xl tilt-card">
+                    
+                    <!-- Floating Badge 1 (Top-Left) -->
+                    <div class="animate-float-1 absolute -top-5 -left-4 sm:-left-8 z-30 glass-card border border-emerald-500/40 p-3 rounded-2xl flex items-center gap-3 shadow-2xl">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg font-bold">
+                            <i class="fas fa-arrow-trend-up"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-[10px] text-slate-400 font-semibold uppercase">Latest Deal</div>
+                            <div class="text-xs sm:text-sm font-extrabold text-white">+₹45,000 / Video</div>
+                        </div>
+                    </div>
+
+                    <!-- Floating Badge 2 (Bottom-Right) -->
+                    <div class="animate-float-2 absolute -bottom-5 -right-4 sm:-right-8 z-30 glass-card border border-rose-500/40 p-3 rounded-2xl flex items-center gap-3 shadow-2xl">
+                        <div class="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-lg font-bold">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-[10px] text-slate-400 font-semibold uppercase">Retention Boost</div>
+                            <div class="text-xs sm:text-sm font-extrabold text-white">72.4% Avg Watch Time</div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl overflow-hidden aspect-video bg-slate-950 border border-white/10 shadow-2xl relative">
+                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=1" title="Trailer" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-4 justify-center items-center">
+                    <button onclick="scrollToPricing()" class="bg-gradient-to-r from-rose-500 via-rose-600 to-amber-500 hover:scale-105 active:scale-95 transition text-white px-8 py-4 rounded-2xl font-extrabold text-base flex items-center gap-3 shadow-xl">
+                        <span>Check All 5 Plans & Pricing</span>
+                        <i class="fas fa-arrow-down text-amber-300"></i>
+                    </button>
+                    <button onclick="navigateTo('syllabus')" class="glass-card hover:bg-slate-800 text-slate-200 px-7 py-4 rounded-2xl font-bold text-base transition">
+                        View Full Syllabus →
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3D Stats Cards (Interactive Tilt) -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center mb-20">
+                <div class="glass-card tilt-card p-6 rounded-2xl border border-white/10">
+                    <div class="heading-font text-3xl font-extrabold text-white">100K+</div>
+                    <div class="text-xs text-slate-400 mt-1">YouTube Subs</div>
+                </div>
+                <div class="glass-card tilt-card p-6 rounded-2xl border border-white/10">
+                    <div class="heading-font text-3xl font-extrabold text-amber-400">25+ Hours</div>
+                    <div class="text-xs text-slate-400 mt-1">Video Content</div>
+                </div>
+                <div class="glass-card tilt-card p-6 rounded-2xl border border-white/10">
+                    <div class="heading-font text-3xl font-extrabold text-rose-500">₹15,000+</div>
+                    <div class="text-xs text-slate-400 mt-1">Free Assets Pack</div>
+                </div>
+                <div class="glass-card tilt-card p-6 rounded-2xl border border-white/10">
+                    <div class="heading-font text-3xl font-extrabold text-emerald-400">4.92 ★</div>
+                    <div class="text-xs text-slate-400 mt-1">Student Rating</div>
+                </div>
+            </div>
+
+            <!-- ================= 5 PRICING OPTIONS (WITH LASER BEAM & 3D TILT) ================= -->
+            <div id="pricingSection" class="pt-8 pb-16">
+                <div class="text-center mb-12">
+                    <span class="text-rose-400 font-bold text-xs uppercase tracking-widest bg-rose-500/10 px-4 py-1.5 rounded-full border border-rose-500/20">Flexible Pricing</span>
+                    <h2 class="heading-font text-3xl sm:text-5xl font-extrabold text-white mt-4 mb-2">Choose Your Level (5 Options)</h2>
+                    <p class="text-slate-400 text-sm max-w-xl mx-auto">Kisi bhi plan ko enroll karein aur website par turant full VIP access payein:</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <!-- Plan 1 -->
+                    <div class="glass-card tilt-card rounded-2xl p-5 border border-white/10 flex flex-col justify-between hover:border-slate-500">
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-slate-400">Level 1</span>
+                            <h3 class="font-extrabold text-lg text-white mt-1">Starter Pass</h3>
+                            <div class="my-3">
+                                <span class="text-3xl font-black text-white">₹499</span>
+                                <span class="text-xs text-slate-500 line-through">₹1,999</span>
+                            </div>
+                            <ul class="text-xs text-slate-300 space-y-2 mb-6">
+                                <li>✓ Basic Video Lectures</li>
+                                <li>✓ Mobile & Laptop Access</li>
+                                <li>✓ Lifetime Validity</li>
+                            </ul>
+                        </div>
+                        <button onclick="startCheckout('Starter Pass', 499)" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition">
+                            Choose ₹499
+                        </button>
+                    </div>
+
+                    <!-- Plan 2 (POPULAR - ANIMATED LASER BEAM) -->
+                    <div class="glass-card tilt-card rounded-2xl p-5 border-2 border-rose-500 laser-card relative flex flex-col justify-between shadow-2xl">
+                        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-rose-500 to-amber-500 text-white text-[10px] font-extrabold px-3 py-0.5 rounded-full uppercase">
+                            Most Popular
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-rose-400">Level 2</span>
+                            <h3 class="font-extrabold text-lg text-white mt-1">Pro Creator</h3>
+                            <div class="my-3">
+                                <span class="text-3xl font-black text-white">₹999</span>
+                                <span class="text-xs text-slate-500 line-through">₹4,999</span>
+                            </div>
+                            <ul class="text-xs text-slate-300 space-y-2 mb-6">
+                                <li>✓ All 6 Course Modules</li>
+                                <li>✓ VIP Telegram Access</li>
+                                <li>✓ Certificate Included</li>
+                                <li>✓ Project Workfiles</li>
+                            </ul>
+                        </div>
+                        <button onclick="startCheckout('Pro Creator', 999)" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 hover:opacity-95 text-white font-bold text-xs transition shadow-lg">
+                            Choose ₹999
+                        </button>
+                    </div>
+
+                    <!-- Plan 3 -->
+                    <div class="glass-card tilt-card rounded-2xl p-5 border border-white/10 flex flex-col justify-between hover:border-amber-500">
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-amber-400">Level 3</span>
+                            <h3 class="font-extrabold text-lg text-white mt-1">Mastermind</h3>
+                            <div class="my-3">
+                                <span class="text-3xl font-black text-white">₹1,999</span>
+                                <span class="text-xs text-slate-500 line-through">₹7,999</span>
+                            </div>
+                            <ul class="text-xs text-slate-300 space-y-2 mb-6">
+                                <li>✓ Everything in Pro</li>
+                                <li>✓ ₹15,000 Free Bonuses</li>
+                                <li>✓ 500+ SFX & PSD Files</li>
+                                <li>✓ Monthly Q&A Calls</li>
+                            </ul>
+                        </div>
+                        <button onclick="startCheckout('Mastermind', 1999)" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition">
+                            Choose ₹1,999
+                        </button>
+                    </div>
+
+                    <!-- Plan 4 -->
+                    <div class="glass-card tilt-card rounded-2xl p-5 border border-white/10 flex flex-col justify-between hover:border-emerald-500">
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-emerald-400">Level 4</span>
+                            <h3 class="font-extrabold text-lg text-white mt-1">1-on-1 Mentorship</h3>
+                            <div class="my-3">
+                                <span class="text-3xl font-black text-white">₹4,999</span>
+                                <span class="text-xs text-slate-500 line-through">₹14,999</span>
+                            </div>
+                            <ul class="text-xs text-slate-300 space-y-2 mb-6">
+                                <li>✓ Everything in Mastermind</li>
+                                <li>✓ Direct WhatsApp Access</li>
+                                <li>✓ Video Review by Instructor</li>
+                                <li>✓ High-Ticket Client Deals</li>
+                            </ul>
+                        </div>
+                        <button onclick="startCheckout('1-on-1 Mentorship', 4999)" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition">
+                            Choose ₹4,999
+                        </button>
+                    </div>
+
+                    <!-- Plan 5 -->
+                    <div class="glass-card tilt-card rounded-2xl p-5 border border-white/10 flex flex-col justify-between hover:border-purple-500">
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-purple-400">Level 5</span>
+                            <h3 class="font-extrabold text-lg text-white mt-1">Agency Suite</h3>
+                            <div class="my-3">
+                                <span class="text-3xl font-black text-white">₹9,999</span>
+                                <span class="text-xs text-slate-500 line-through">₹29,999</span>
+                            </div>
+                            <ul class="text-xs text-slate-300 space-y-2 mb-6">
+                                <li>✓ 5 Team Member Logins</li>
+                                <li>✓ Commercial Asset Rights</li>
+                                <li>✓ Contract & Legal Kits</li>
+                                <li>✓ Personal Client Roadmap</li>
+                            </ul>
+                        </div>
+                        <button onclick="startCheckout('Agency Suite', 9999)" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition">
+                            Choose ₹9,999
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 2: SYLLABUS ================= -->
+        <section id="page-syllabus" class="page-content">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-rose-400 font-bold text-xs uppercase tracking-widest bg-rose-500/10 px-4 py-1.5 rounded-full border border-rose-500/20">Full Curriculum</span>
+                <h2 class="heading-font text-3xl sm:text-5xl font-extrabold text-white mt-4 mb-2">Step-by-Step Syllabus</h2>
+                <p class="text-slate-400 text-sm">6 Complete Modules • 25+ Hours of HD Practical Videos</p>
+            </div>
+
+            <div class="space-y-4 max-w-3xl mx-auto">
+                <div class="glass-card tilt-card p-6 rounded-2xl border border-white/10">
+                    <div class="flex items-center gap-3 font-bold text-rose-400 mb-2">
+                        <span class="w-7 h-7 rounded-lg bg-rose-500/20 flex items-center justify-center text-xs">01</span>
+                        Module 1: Mindset, Software Setup & Secret Workflow
+                    </div>
+                    <p class="text-xs text-slate-300">Optimal timeline render setups, low-end PC optimization, shortcuts aur folder structuring.</p>
+                </div>
+                <div class="glass-card tilt-card p-6 rounded-2xl border border-white/10">
+                    <div class="flex items-center gap-3 font-bold text-rose-400 mb-2">
+                        <span class="w-7 h-7 rounded-lg bg-rose-500/20 flex items-center justify-center text-xs">02</span>
+                        Module 2: High Retention Storytelling & Script Structuring
+                    </div>
+                    <p class="text-xs text-slate-300">The 30-Second Hook Formula, audience attention graphs master karna, aur emotional pacing.</p>
+                </div>
+                <div class="glass-card tilt-card p-6 rounded-2xl border border-white/10">
+                    <div class="flex items-center gap-3 font-bold text-rose-400 mb-2">
+                        <span class="w-7 h-7 rounded-lg bg-rose-500/20 flex items-center justify-center text-xs">03</span>
+                        Module 3: Pro Visual Effects, Motion Graphics & Animation
+                    </div>
+                    <p class="text-xs text-slate-300">Documentary map animations, 3D paper textures, kinetic typography aur whip transitions.</p>
+                </div>
+                <div class="glass-card tilt-card p-6 rounded-2xl border border-white/10">
+                    <div class="flex items-center gap-3 font-bold text-rose-400 mb-2">
+                        <span class="w-7 h-7 rounded-lg bg-rose-500/20 flex items-center justify-center text-xs">04</span>
+                        Module 4: Cinematic Sound Design & Color Grading
+                    </div>
+                    <p class="text-xs text-slate-300">Layering whooshes, impacts, clean vocal enhancement, aur Hollywood LUTs color grading.</p>
+                </div>
+                <div class="glass-card tilt-card p-6 rounded-2xl border border-white/10">
+                    <div class="flex items-center gap-3 font-bold text-rose-400 mb-2">
+                        <span class="w-7 h-7 rounded-lg bg-rose-500/20 flex items-center justify-center text-xs">05</span>
+                        Module 5: 10/10 Clickable Thumbnails & Packaging
+                    </div>
+                    <p class="text-xs text-slate-300">15%+ CTR Thumbnail design in Photoshop, face lighting aur algorithmic synergy.</p>
+                </div>
+                <div class="glass-card tilt-card p-6 rounded-2xl border border-white/10">
+                    <div class="flex items-center gap-3 font-bold text-emerald-400 mb-2">
+                        <span class="w-7 h-7 rounded-lg bg-emerald-500/20 flex items-center justify-center text-xs">06</span>
+                        Module 6: Freelancing, High-Ticket Clients ($500 - $1,500)
+                    </div>
+                    <p class="text-xs text-slate-300">Zero-experience portfolio, cold DM scripts, international USD payments aur retainer deals.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 3: BONUSES ================= -->
+        <section id="page-bonuses" class="page-content">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-amber-400 font-bold text-xs uppercase tracking-widest bg-amber-500/10 px-4 py-1.5 rounded-full border border-amber-500/20">Exclusive Free Assets</span>
+                <h2 class="heading-font text-3xl sm:text-5xl font-extrabold text-white mt-4 mb-2">₹15,000+ Worth Bonuses Included</h2>
+                <p class="text-slate-400 text-sm">Course enroll karte hi instant download ke liye ready:</p>
+            </div>
+
+            <div class="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <div class="glass-card tilt-card p-6 rounded-2xl border border-white/10">
+                    <div class="w-12 h-12 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-xl mb-4">
+                        <i class="fas fa-music"></i>
+                    </div>
+                    <span class="text-xs font-bold text-amber-400 uppercase">Worth ₹3,999 • Free</span>
+                    <h3 class="font-bold text-lg text-white mt-1 mb-2">500+ Cinematic Sound Effects Pack</h3>
+                    <p class="text-xs text-slate-400">Risers, cinematic booms, whooshes, typing sounds categorized in clean folders.</p>
+                </div>
+
+                <div class="glass-card tilt-card p-6 rounded-2xl border border-white/10">
+                    <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl mb-4">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <span class="text-xs font-bold text-amber-400 uppercase">Worth ₹2,999 • Free</span>
+                    <h3 class="font-bold text-lg text-white mt-1 mb-2">Photoshop Editable Thumbnail Templates</h3>
+                    <p class="text-xs text-slate-400">High-CTR editable PSD packs. Bas photo aur text badlo aur 10 minute me thumbnail taiyar.</p>
+                </div>
+
+                <div class="glass-card tilt-card p-6 rounded-2xl border border-white/10">
+                    <div class="w-12 h-12 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center text-xl mb-4">
+                        <i class="fas fa-envelope-open-text"></i>
+                    </div>
+                    <span class="text-xs font-bold text-amber-400 uppercase">Worth ₹4,500 • Free</span>
+                    <h3 class="font-bold text-lg text-white mt-1 mb-2">Client Outreach Cold DM & Email Scripts</h3>
+                    <p class="text-xs text-slate-400">Copy-paste scripts jisse creators ko pitch karke clients close kiye jaate hain.</p>
+                </div>
+
+                <div class="glass-card tilt-card p-6 rounded-2xl border border-white/10">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl mb-4">
+                        <i class="fab fa-telegram"></i>
+                    </div>
+                    <span class="text-xs font-bold text-amber-400 uppercase">Worth ₹4,000 • Free</span>
+                    <h3 class="font-bold text-lg text-white mt-1 mb-2">Private VIP Telegram Mastermind</h3>
+                    <p class="text-xs text-slate-400">Direct feedback, project sharing, weekly community Q&A, aur creators network.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 4: INSTRUCTOR ================= -->
+        <section id="page-instructor" class="page-content">
+            <div class="glass-card tilt-card rounded-3xl p-8 sm:p-12 border border-white/10 max-w-4xl mx-auto">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <div class="w-44 h-44 rounded-3xl bg-slate-800 border-2 border-rose-500/60 overflow-hidden shrink-0 shadow-2xl">
+                        <img src="images.jpg" alt="Instructor" class="w-full h-full object-cover">
+                    </div>
+                    <div class="text-left space-y-3">
+                        <div class="inline-flex items-center gap-2 text-rose-400 text-xs font-bold uppercase tracking-wider bg-rose-500/10 px-3 py-1 rounded-full border border-rose-500/20">
+                            <i class="fab fa-youtube"></i> Full-Time Creator & Educator
+                        </div>
+                        <h2 class="heading-font text-3xl font-extrabold text-white">Anurag Singh</h2>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            "Maine 0 se shuru kiya tha bina kisi expensive gear ke. Pichhle 3 saalon me 300+ videos produce karke maine jo real framework develop kiya hai, wo is masterclass me step-by-step deliver kiya gaya hai."
+                        </p>
+                        <div class="grid grid-cols-3 gap-4 pt-2 text-xs">
+                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800"><strong class="text-white text-base block">20K+</strong> Subscribers</div>
+                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800"><strong class="text-white text-base block">15M+</strong> Views</div>
+                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800"><strong class="text-white text-base block">4,500+</strong> Students</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 5: REVIEWS ================= -->
+        <section id="page-reviews" class="page-content">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-emerald-400 font-bold text-xs uppercase tracking-widest bg-emerald-500/10 px-4 py-1.5 rounded-full border border-emerald-500/20">Wall of Love</span>
+                <h2 class="heading-font text-3xl sm:text-5xl font-extrabold text-white mt-4 mb-2">Student Results & Reviews</h2>
+                <p class="text-slate-400 text-sm">Real reviews from students who joined our academy:</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                <div class="glass-card tilt-card p-6 rounded-2xl border border-white/10 flex flex-col justify-between">
+                    <div>
+                        <div class="flex text-amber-400 text-xs mb-3">★★★★★</div>
+                        <p class="text-xs text-slate-300 mb-4 leading-relaxed">"Module 3 dekhne ke baad meri editing speed 3x fast ho gayi. Mujhe pehla client ₹14,000 me mila!"</p>
+                    </div>
+                    <div class="flex items-center gap-3 pt-3 border-t border-slate-800 text-xs">
+                        <div class="w-8 h-8 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold">AS</div>
+                        <div><strong class="text-white block">Aman Sharma</strong><span class="text-slate-400 text-[10px]">Delhi</span></div>
+                    </div>
+                </div>
+                <div class="glass-card tilt-card p-6 rounded-2xl border border-white/10 flex flex-col justify-between">
+                    <div>
+                        <div class="flex text-amber-400 text-xs mb-3">★★★★★</div>
+                        <p class="text-xs text-slate-300 mb-4 leading-relaxed">"Retention hook formula sach me kaam karta hai! Meri pichhli video 50k+ views cross kar gayi."</p>
+                    </div>
+                    <div class="flex items-center gap-3 pt-3 border-t border-slate-800 text-xs">
+                        <div class="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">RK</div>
+                        <div><strong class="text-white block">Rohit Kashyap</strong><span class="text-slate-400 text-[10px]">Pune</span></div>
+                    </div>
+                </div>
+                <div class="glass-card tilt-card p-6 rounded-2xl border border-white/10 flex flex-col justify-between">
+                    <div>
+                        <div class="flex text-amber-400 text-xs mb-3">★★★★★</div>
+                        <p class="text-xs text-slate-300 mb-4 leading-relaxed">"SFX pack aur PSD templates se mere ghanton ka time bachta hai. Best value course!"</p>
+                    </div>
+                    <div class="flex items-center gap-3 pt-3 border-t border-slate-800 text-xs">
+                        <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">PV</div>
+                        <div><strong class="text-white block">Pooja Verma</strong><span class="text-slate-400 text-[10px]">Mumbai</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 6: FAQ ================= -->
+        <section id="page-faq" class="page-content">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-rose-400 font-bold text-xs uppercase tracking-widest bg-rose-500/10 px-4 py-1.5 rounded-full border border-rose-500/20">Clear Doubts</span>
+                <h2 class="heading-font text-3xl sm:text-5xl font-extrabold text-white mt-4 mb-2">Frequently Asked Questions</h2>
+            </div>
+
+            <div class="space-y-3 max-w-3xl mx-auto">
+                <div class="glass-card tilt-card p-5 rounded-2xl border border-white/10">
+                    <h3 class="font-bold text-sm text-white mb-1.5">Kya mobile phone user seekh sakte hain?</h3>
+                    <p class="text-xs text-slate-400">Haan, course ke saare videos mobile friendly hain aur concepts kisi bhi editing software par apply hote hain.</p>
+                </div>
+                <div class="glass-card tilt-card p-5 rounded-2xl border border-white/10">
+                    <h3 class="font-bold text-sm text-white mb-1.5">Payment ke baad course access kaise milega?</h3>
+                    <p class="text-xs text-slate-400">Payment hote hi website automatically aapko Student Vault aur Telegram link par redirect kar degi.</p>
+                </div>
+                <div class="glass-card tilt-card p-5 rounded-2xl border border-white/10">
+                    <h3 class="font-bold text-sm text-white mb-1.5">Validity kitne din tak rahegi?</h3>
+                    <p class="text-xs text-slate-400">100% Lifetime Validity! Saare future updates bhi aapko free me milenge.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 7: CONTACT ================= -->
+        <section id="page-contact" class="page-content">
+            <div class="text-center max-w-3xl mx-auto mb-10">
+                <span class="text-sky-400 font-bold text-xs uppercase tracking-widest bg-sky-500/10 px-4 py-1.5 rounded-full border border-sky-500/20">Direct Support</span>
+                <h2 class="heading-font text-3xl sm:text-5xl font-extrabold text-white mt-4 mb-2">Get In Touch With Us</h2>
+                <p class="text-slate-400 text-sm">Koi sawal ya doubt hai? Direct humse connect karein:</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div class="glass-card tilt-card p-6 sm:p-8 rounded-3xl border border-white/10 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-xl text-white mb-4">Official Channels</h3>
+                        <div class="space-y-4 text-xs text-slate-300">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center"><i class="fab fa-whatsapp text-lg"></i></div>
+                                <div><strong class="text-white block">WhatsApp Direct</strong><span>+91 7905647338</span></div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center"><i class="fas fa-envelope text-lg"></i></div>
+                                <div><strong class="text-white block">Official Support Email</strong><span>support@yourcreatoracademy.com</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="" target="_blank" class="mt-6 w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider text-center transition flex items-center justify-center gap-2 shadow-lg">
+                        <i class="fab fa-whatsapp text-base"></i> Chat on WhatsApp Now
+                    </a>
+                </div>
+
+                <div class="glass-card tilt-card p-6 sm:p-8 rounded-3xl border border-white/10">
+                    <h3 class="font-bold text-xl text-white mb-4">Send a Message</h3>
+                    <form onsubmit="handleContactSubmit(event)" class="space-y-3 text-xs">
+                        <div>
+                            <label class="block text-slate-400 mb-1">Aapka Naam</label>
+                            <input type="text" id="contactName" required placeholder="Aapka naam" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-rose-500">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-1">Aapka Sawal (Message)</label>
+                            <textarea id="contactMsg" rows="3" required placeholder="Aap kya puchhna chahte hain?" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-rose-500"></textarea>
+                        </div>
+                        <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 text-white font-bold transition">Send Enquiry 🚀</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 8: UNLOCKED STUDENT VAULT ================= -->
+        <section id="page-vault" class="page-content">
+            <div class="glass-card rounded-3xl p-8 border-2 border-amber-500/50 shadow-2xl max-w-4xl mx-auto text-left relative overflow-hidden">
+                <div class="flex items-center justify-between pb-6 border-b border-slate-800">
+                    <div>
+                        <span class="text-xs font-bold text-amber-400 uppercase tracking-widest">★ VIP Enrollment Active</span>
+                        <h2 class="heading-font text-3xl font-extrabold text-white mt-1">Student Portal & Video Vault</h2>
+                    </div>
+                    <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold border border-emerald-500/30">Active License</span>
+                </div>
+
+                <div class="mt-6 mb-8">
+                    <h3 class="font-bold text-base text-white mb-3">Watch Lecture 1: Getting Started</h3>
+                    <div class="rounded-2xl overflow-hidden aspect-video bg-black border border-slate-800 shadow-2xl">
+                        <iframe class="w-full h-full" src="images (2).jpg" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                </div>
+
+                <h3 class="font-bold text-base text-white mb-3">Download Your Assets & Access Groups</h3>
+                <div class="grid sm:grid-cols-3 gap-3">
+                    <a href="https://web.telegram.org/" target="_blank" class="p-4 rounded-xl bg-slate-950 border border-slate-800 hover:border-amber-500 transition text-center">
+                        <i class="fab fa-telegram text-2xl text-sky-400 mb-1 block"></i>
+                        <strong class="text-xs text-white block">VIP Telegram Group</strong>
+                        <span class="text-[10px] text-slate-400">Click to Join</span>
+                    </a>
+                    <a href="https://drive.google.com" target="_blank" class="p-4 rounded-xl bg-slate-950 border border-slate-800 hover:border-amber-500 transition text-center">
+                        <i class="fas fa-download text-2xl text-amber-400 mb-1 block"></i>
+                        <strong class="text-xs text-white block">500+ SFX & Assets</strong>
+                        <span class="text-[10px] text-slate-400">Download ZIP</span>
+                    </a>
+                    <a href="https://drive.google.com" target="_blank" class="p-4 rounded-xl bg-slate-950 border border-slate-800 hover:border-amber-500 transition text-center">
+                        <i class="fas fa-file-psd text-2xl text-rose-400 mb-1 block"></i>
+                        <strong class="text-xs text-white block">Thumbnail PSDs</strong>
+                        <span class="text-[10px] text-slate-400">Download Templates</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 py-8 text-center text-xs text-slate-500 relative z-20 bg-slate-950/70">
+        <div class="max-w-4xl mx-auto px-4 space-y-2">
+            <p>© 2026 Creator OS Academy. All Rights Reserved.</p>
+            <div class="flex justify-center gap-4 text-slate-400 text-xs">
+                <button onclick="navigateTo('home')" class="hover:text-white">Home</button> •
+                <button onclick="navigateTo('syllabus')" class="hover:text-white">Syllabus</button> •
+                <button onclick="navigateTo('contact')" class="hover:text-white">Contact</button> •
+                <button onclick="resetMembershipDemo()" class="text-rose-400 underline">Reset Demo Mode</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ================= CHECKOUT MODAL (5 PRICES + CARD + OTP) ================= -->
+    <div id="checkoutModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md hidden px-4 py-6 overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-700/70 rounded-3xl max-w-md w-full p-6 sm:p-8 relative shadow-2xl my-auto">
+            <button onclick="closeCheckoutModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white text-xl">✕</button>
+
+            <!-- STEP 1: Details -->
+            <div id="step1Details">
+                <div class="text-center mb-6">
+                    <div class="w-12 h-12 bg-rose-500/10 text-rose-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <h3 class="heading-font text-2xl font-bold text-white">Enrollment Details</h3>
+                    <p class="text-xs text-slate-400 mt-1">Plan: <span id="checkoutPlanName" class="font-bold text-rose-400">Pro Creator</span></p>
+                </div>
+
+                <form onsubmit="handleDetailsSubmit(event)" class="space-y-4 text-xs">
+                    <div>
+                        <label class="block text-slate-300 mb-1">Aapka Pura Naam</label>
+                        <input type="text" id="custName" required placeholder="e.g. Rahul Sharma" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-rose-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-300 mb-1">WhatsApp Number</label>
+                        <input type="tel" id="custPhone" required placeholder="e.g. 9876543210" pattern="[0-9]{10}" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-rose-500">
+                    </div>
+
+                    <div class="bg-slate-950 p-4 rounded-xl flex justify-between items-center text-sm border border-slate-800">
+                        <span class="text-slate-400">Selected Fee:</span>
+                        <span class="font-extrabold text-xl text-emerald-400" id="checkoutPlanPrice">₹999</span>
+                    </div>
+
+                    <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 text-white font-bold text-sm shadow-lg">
+                        Continue to Payment →
+                    </button>
+                </form>
+            </div>
+
+            <!-- STEP 2: Payment Methods (UPI, QR, Card) -->
+            <div id="step2Payment" class="hidden text-center">
+                <h3 class="heading-font text-xl font-bold text-white mb-1">Pay <span id="payAmountDisplay">₹999</span></h3>
+                <p class="text-xs text-slate-400 mb-4">Choose payment method to unlock website:</p>
+
+                <!-- PhonePe / GPay -->
+                <div class="space-y-2 mb-4">
+                    <button onclick="launchUpiApp('phonepe')" class="w-full bg-[#5f259f] text-white py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-between">
+                        <span><i class="fas fa-mobile-screen mr-2"></i> Pay via PhonePe</span>
+                        <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded">Fast</span>
+                    </button>
+                    <button onclick="launchUpiApp('gpay')" class="w-full bg-[#1a73e8] text-white py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-between">
+                        <span><i class="fab fa-google-pay text-lg mr-2"></i> Pay via Google Pay</span>
+                        <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded">Fast</span>
+                    </button>
+                </div>
+
+                <!-- Card & NetBanking -->
+                <button onclick="showStep3CardNetbanking()" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white p-3 rounded-xl transition flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3 text-left">
+                        <i class="fas fa-credit-card text-rose-400"></i>
+                        <div>
+                            <div class="text-xs font-bold text-white">Credit / Debit Card / NetBanking</div>
+                            <div class="text-[10px] text-slate-400">SBI, HDFC, ICICI, Visa, RuPay</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-arrow-right text-xs text-slate-400"></i>
+                </button>
+
+                <!-- Toggle QR -->
+                <button onclick="toggleQRView()" class="text-xs text-rose-400 underline mb-3 block mx-auto">
+                    Scan UPI QR Code instead
+                </button>
+
+                <div id="qrCodeContainer" class="hidden bg-white p-2.5 rounded-2xl mb-3 inline-block">
+                    <img id="dynamicQR" src="" alt="QR" class="w-40 h-40 mx-auto">
+                </div>
+
+                <!-- Instant Demo Unlock -->
+                <button onclick="completePaymentAndActivatePremium()" class="w-full mt-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg">
+                    <i class="fas fa-check-circle"></i> Complete Payment (Test & Unlock VIP)
+                </button>
+
+                <button onclick="showStep1()" class="text-xs text-slate-500 hover:text-slate-300 mt-4 block mx-auto">← Edit Details</button>
+            </div>
+
+            <!-- STEP 3: Card Form -->
+            <div id="step3CardNetbanking" class="hidden text-left text-xs space-y-3">
+                <div class="flex items-center justify-between mb-2">
+                    <button onclick="backToStep2()" class="text-slate-400 hover:text-white">← Back</button>
+                    <span class="font-bold text-emerald-400">Card & NetBanking Checkout</span>
+                </div>
+                <div>
+                    <label class="block text-slate-400 mb-1">Card Number</label>
+                    <input type="text" value="4532 8921 4452 9012" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-slate-400 mb-1">Expiry</label>
+                        <input type="text" value="12/28" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-center">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">CVV</label>
+                        <input type="password" value="892" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-center">
+                    </div>
+                </div>
+                <button onclick="showOtpVerification()" class="w-full mt-3 py-3 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 text-white font-bold uppercase tracking-wider">
+                    Proceed to Bank OTP →
+                </button>
+            </div>
+
+            <!-- STEP 4: Bank OTP Verification -->
+            <div id="step4Otp" class="hidden text-center text-xs">
+                <h3 class="font-bold text-white text-base mb-1">Bank 3D Secure OTP</h3>
+                <p class="text-slate-400 mb-4">OTP sent to registered mobile ******8920</p>
+                <input type="text" id="otpBox" value="1234" maxlength="4" class="w-36 text-center tracking-[8px] font-mono text-lg bg-slate-950 border border-rose-500 rounded-xl py-2 text-white mb-2">
+                <p class="text-amber-400 text-[11px] mb-4">Test Code: 1234 daalein</p>
+                <button onclick="completePaymentAndActivatePremium()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl">
+                    Verify & Activate VIP Membership 🎉
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= JAVASCRIPT: PARTICLE CANVAS + 3D TILT + APP LOGIC ================= -->
+    <script>
+        // ================= CONFIGURATION =================
+        const CONFIG = {
+            upiId: "9876543210@paytm",
+            payeeName: "Creator Academy",
+            whatsAppNumber: "919876543210"
+        };
+
+        let selectedPlan = { name: 'Pro Creator', price: 999 };
+        let studentData = { name: '', phone: '' };
+
+        // 1. Interactive Cursor Aura Spotlight
+        const spotlight = document.getElementById('cursorSpotlight');
+        window.addEventListener('mousemove', (e) => {
+            spotlight.style.left = e.clientX + 'px';
+            spotlight.style.top = e.clientY + 'px';
+        });
+
+        // 2. Interactive Moveable Particles Canvas Background
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let mouseX = -100, mouseY = -100;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.7;
+                this.vy = (Math.random() - 0.5) * 0.7;
+                this.radius = Math.random() * 2 + 1;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 51, 102, 0.4)';
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 45; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+
+                // Connect particles close to each other
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 110) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${0.12 - dist / 1100})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // 3. 3D Card Tilt Interaction (Moveable on Mouse Hover)
+        document.querySelectorAll('.tilt-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -10;
+                const rotateY = ((x - centerX) / centerX) * 10;
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+            });
+        });
+
+        // 4. Navigation System (Multi-Page Switcher)
+        function navigateTo(pageId) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+
+            const targetPage = document.getElementById('page-' + pageId);
+            const targetLink = document.getElementById('link-' + pageId);
+
+            if (targetPage) targetPage.classList.add('active');
+            if (targetLink) targetLink.classList.add('active');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function scrollToPricing() {
+            navigateTo('home');
+            setTimeout(() => {
+                document.getElementById('pricingSection').scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
+
+        // 5. Checkout Modal Flow
+        function startCheckout(planName, price) {
+            selectedPlan = { name: planName, price: price };
+            document.getElementById('checkoutPlanName').innerText = planName;
+            document.getElementById('checkoutPlanPrice').innerText = '₹' + price;
+            document.getElementById('payAmountDisplay').innerText = '₹' + price;
+
+            document.getElementById('checkoutModal').classList.remove('hidden');
+            showStep1();
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkoutModal').classList.add('hidden');
+        }
+
+        function showStep1() {
+            hideAllSteps();
+            document.getElementById('step1Details').classList.remove('hidden');
+        }
+
+        function backToStep2() {
+            hideAllSteps();
+            document.getElementById('step2Payment').classList.remove('hidden');
+        }
+
+        function hideAllSteps() {
+            document.getElementById('step1Details').classList.add('hidden');
+            document.getElementById('step2Payment').classList.add('hidden');
+            document.getElementById('step3CardNetbanking').classList.add('hidden');
+            document.getElementById('step4Otp').classList.add('hidden');
+        }
+
+        function handleDetailsSubmit(e) {
+            e.preventDefault();
+            studentData.name = document.getElementById('custName').value.trim();
+            studentData.phone = document.getElementById('custPhone').value.trim();
+
+            const upiString = `upi://pay?pa=${CONFIG.upiId}&pn=${encodeURIComponent(CONFIG.payeeName)}&am=${selectedPlan.price}&cu=INR&tn=${encodeURIComponent(selectedPlan.name + ' - ' + studentData.name)}`;
+            document.getElementById('dynamicQR').src = `https://quickchart.io/qr?text=${encodeURIComponent(upiString)}&size=300&dark=000000`;
+
+            hideAllSteps();
+            document.getElementById('step2Payment').classList.remove('hidden');
+        }
+
+        function launchUpiApp(app) {
+            const upiString = `upi://pay?pa=${CONFIG.upiId}&pn=${encodeURIComponent(CONFIG.payeeName)}&am=${selectedPlan.price}&cu=INR&tn=${encodeURIComponent(selectedPlan.name + ' - ' + studentData.name)}`;
+            window.location.href = (app === 'phonepe') ? `phonepe://pay?${upiString}` : `gpay://upi/pay?${upiString}`;
+        }
+
+        function toggleQRView() {
+            document.getElementById('qrCodeContainer').classList.toggle('hidden');
+        }
+
+        function showStep3CardNetbanking() {
+            hideAllSteps();
+            document.getElementById('step3CardNetbanking').classList.remove('hidden');
+        }
+
+        function showOtpVerification() {
+            hideAllSteps();
+            document.getElementById('step4Otp').classList.remove('hidden');
+        }
+
+        // 6. VIP UNLOCK (PAYMENT HOTE HI WEBSITE PREMIUM BAN JAYE)
+        function completePaymentAndActivatePremium() {
+            closeCheckoutModal();
+
+            confetti({
+                particleCount: 160,
+                spread: 85,
+                origin: { y: 0.6 }
+            });
+
+            localStorage.setItem('creator_os_premium', 'true');
+            applyPremiumTheme();
+
+            navigateTo('vault');
+
+            alert(`🎉 Badhaai ho ${studentData.name || 'Student'}! Aapka ₹${selectedPlan.price} ka payment approve ho gaya hai. Website ab "PREMIUM MODE" me activate ho chuki hai!`);
+        }
+
+        function applyPremiumTheme() {
+            const isPremium = localStorage.getItem('creator_os_premium') === 'true';
+            if (isPremium) {
+                document.getElementById('topBanner').className = "bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 text-black text-xs sm:text-sm font-extrabold py-2 px-4 text-center sticky top-0 z-50 shadow-lg flex items-center justify-center gap-2";
+                document.getElementById('bannerText').innerText = "👑 VIP PRO MEMBER UNLOCKED • LIFETIME ALL-ACCESS ACTIVE";
+                document.getElementById('countdownTimer').style.display = "none";
+
+                const badge = document.getElementById('membershipBadge');
+                badge.innerText = "👑 VIP PRO STUDENT";
+                badge.className = "text-[10px] text-amber-400 font-extrabold tracking-wider uppercase block";
+
+                document.getElementById('navbarBtnText').innerText = "VIP Vault Active";
+
+                document.getElementById('link-vault').classList.remove('hidden');
+                document.getElementById('mobileLinkVault').classList.remove('hidden');
+
+                document.getElementById('mainNavbar').classList.add('premium-border-gold');
+            }
+        }
+
+        function resetMembershipDemo() {
+            localStorage.removeItem('creator_os_premium');
+            location.reload();
+        }
+
+        function handleContactSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('contactName').value;
+            const msg = document.getElementById('contactMsg').value;
+            window.open(`https://wa.me/${CONFIG.whatsAppNumber}?text=Hi%20Sir%2C%20My%20Name%20is%20${encodeURIComponent(name)}.%20Query%3A%20${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        // Timer countdown
+        let t = 15 * 60;
+        setInterval(() => {
+            if (t > 0) t--;
+            const m = Math.floor(t / 60);
+            const s = t % 60;
+            document.getElementById('countdownTimer').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }, 1000);
+
+        window.onload = function() {
+            applyPremiumTheme();
+        };
+    </script>
+
+</body>
+</html>
